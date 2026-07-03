@@ -94,3 +94,23 @@ func demoInterfaces() {
 	// means to signal "an error occurred, and it happens to be this
 	// nil-valued *MyError" (rare, usually a bug).
 }
+
+/*
+Expected output (from demoInterfaces, called via main.go):
+
+--- implicit satisfaction ---
+circle(r=2.0) has area 12.57
+{3} has area 9.00
+
+--- any (the empty interface) + type assertions/switches ---
+int: 84
+string, uppercased length: 5
+float64: 3.14
+something else: circle(r=1.0) (main.circle)
+was not an int
+
+--- the typed-nil-in-an-interface trap ---
+err == nil? false
+err is non-nil, so this branch runs, calling Error() on a nil *MyError:
+<nil>
+*/

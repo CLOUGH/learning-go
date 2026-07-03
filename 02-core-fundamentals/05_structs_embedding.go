@@ -59,3 +59,14 @@ func demoStructsEmbedding() {
 
 	_ = Config{Host: "localhost", Port: 8080} // tags shown for reference; see encoding/json in the stdlib
 }
+
+/*
+Expected output (from demoStructsEmbedding, called via main.go):
+
+--- struct literals, embedding, promotion ---
+promoted field: Ada
+promoted method: hi, I'm Ada
+explicit path still works: Ada
+p1 == p2: true
+anonymous struct: {1 2}
+*/

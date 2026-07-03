@@ -80,3 +80,16 @@ func main() {
 	fmt.Println(increment(), increment(), increment()) // 1 2 3
 	fmt.Println("counter is now", counter)             // 3, mutated via the closure
 }
+
+/*
+Expected output:
+
+sum: 15
+alice is 30
+point: (1, 2)
+scaled: (3, 6)
+area: 12
+error: divide: cannot divide 10 by zero
+1 2 3
+counter is now 3
+*/

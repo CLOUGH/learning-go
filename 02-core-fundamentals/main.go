@@ -54,3 +54,16 @@ func main() {
 	// c.piApprox or shapes.piApprox would NOT compile - piApprox is
 	// unexported, so it's invisible outside package shapes.
 }
+
+/*
+Expected output: `go run ./02-core-fundamentals` prints init()'s line
+first, then every demoXxx()'s own output (documented at the bottom of
+each of that demo's file, in the same order main() calls them above),
+and finally this file's own "packages" section:
+
+init() ran before main() - no one called it explicitly
+... (see 01_variables_types.go through 11_iterators.go for each section) ...
+
+--- packages: exported vs. unexported (see shapes/shapes.go) ---
+circle area via exported API: 12.56636
+*/

@@ -53,3 +53,28 @@ func main() {
 		fmt.Printf("result for job %d: %d\n", r.JobID, r.Output)
 	}
 }
+
+/*
+Expected output (one possible interleaving - which worker gets which job,
+and the exact print order, both vary between runs; only the *set* of
+9 jobs handled and their squared results is guaranteed):
+
+worker 3 handled job 3
+worker 2 handled job 2
+result for job 3: 9
+worker 1 handled job 1
+result for job 1: 1
+result for job 2: 4
+worker 3 handled job 4
+result for job 4: 16
+worker 1 handled job 6
+result for job 6: 36
+worker 2 handled job 5
+result for job 5: 25
+worker 2 handled job 9
+result for job 9: 81
+worker 3 handled job 7
+result for job 7: 49
+worker 1 handled job 8
+result for job 8: 64
+*/

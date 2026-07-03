@@ -29,3 +29,23 @@ func main() {
 	}
 	wg.Wait()
 }
+
+/*
+Expected output (one possible order - which 2 tasks run concurrently
+first, and the overall order, both vary between runs; the invariant that
+actually matters is that at most 2 "running" lines ever appear without a
+matching "done" between them):
+
+task 6: running (at most 2 run at once)
+task 2: running (at most 2 run at once)
+task 2: done
+task 3: running (at most 2 run at once)
+task 6: done
+task 4: running (at most 2 run at once)
+task 3: done
+task 5: running (at most 2 run at once)
+task 4: done
+task 1: running (at most 2 run at once)
+task 5: done
+task 1: done
+*/

@@ -131,3 +131,35 @@ func main() {
 	fmt.Println("(demonstrateDeadlock() is commented out below - it crashes the program on purpose)")
 	// demonstrateDeadlock()
 }
+
+/*
+Expected output (see caveat below on the two "captured i" blocks):
+
+--- goroutine leak: this goroutine blocks forever ---
+leaked one goroutine (it will never be cleaned up)
+--- fixed: goroutine also selects on a done channel ---
+told to stop, exiting cleanly instead of leaking
+
+--- loop variable capture: Go 1.22+ gives each iteration its own copy ---
+captured i: 2
+captured i: 1
+captured i: 0
+--- the pre-1.22 workaround, still common in the wild: pass i as a parameter ---
+captured i: 2
+captured i: 0
+captured i: 1
+
+--- sync.Once guards against double-close when ownership is unclear ---
+channel closed exactly once, no panic
+
+--- always `defer wg.Done()` immediately, so early returns/panics still count down ---
+recovered from panic: something went wrong mid-goroutine
+Wait() returned - it didn't hang, because Done() was deferred
+
+(demonstrateDeadlock() is commented out below - it crashes the program on purpose)
+
+Caveat: both "captured i" blocks print 0, 1, 2 in whatever order the
+three goroutines happen to get scheduled - any permutation is correct.
+The POINT being demonstrated is that both blocks print each of 0, 1, 2
+exactly once (not "2 2 2" or similar), not the order they print in.
+*/

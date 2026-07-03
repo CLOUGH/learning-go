@@ -62,3 +62,27 @@ func demoDeferPanicRecover() {
 	}
 	fmt.Println("program kept running - the panic never escaped riskyDivide")
 }
+
+/*
+Expected output (from demoDeferPanicRecover, called via main.go):
+
+--- defer: LIFO order ---
+defer runs LIFO - last deferred, first executed:
+function body finishing
+deferred: 3
+deferred: 2
+deferred: 1
+
+--- defer arguments are evaluated when `defer` runs, not later ---
+x is now 2 but the defer above already locked in the old value
+deferred saw x = 1
+
+--- unless the deferred call is a closure, which reads live variables ---
+x is now 2
+deferred closure saw x = 2
+
+--- panic + recover: converting a panic into a normal error ---
+10 / 2 = 5
+10 / 0 -> recovered from panic: runtime error: integer divide by zero
+program kept running - the panic never escaped riskyDivide
+*/

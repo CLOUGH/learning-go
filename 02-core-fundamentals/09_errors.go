@@ -76,3 +76,19 @@ func demoErrors() {
 	fmt.Println("--- plain equality (==) breaks the moment wrapping is involved ---")
 	fmt.Println("err == ErrNotFound:", lookup(-1) == ErrNotFound) // false! always prefer errors.Is over ==
 }
+
+/*
+Expected output (from demoErrors, called via main.go):
+
+--- sentinel errors + errors.Is ---
+error message: lookup -1: not found
+errors.Is(err, ErrNotFound): true
+errors.Is(err, io/whatever unrelated err): false
+
+--- custom error types + errors.As ---
+error message: processing user: validation failed on "age": must be non-negative
+recovered structured error: field="age" msg="must be non-negative"
+
+--- plain equality (==) breaks the moment wrapping is involved ---
+err == ErrNotFound: false
+*/

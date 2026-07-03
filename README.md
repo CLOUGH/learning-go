@@ -48,6 +48,7 @@ the real understanding of goroutines comes from.
 | [08](08-patterns/README.md) | Concurrency patterns | Worker pools, pipelines, fan-in/out, rate limiting, semaphores |
 | [09](09-pitfalls/README.md) | Pitfalls | Leaks, deadlocks, loop-variable capture, closed-channel panics |
 | [10](10-testing-and-race/README.md) | Testing concurrent code | `-race`, `t.Parallel`, avoiding `time.Sleep` as sync |
+| [11](11-standard-library/README.md) | Standard library tour | `strings`/`strconv`, `os`/`io`/`bufio`, `time`, `sort`, `encoding/json`, `net/http`, `log`/`slog`, `flag` |
 
 ## Challenges
 
@@ -69,6 +70,7 @@ compare against afterward.
 - [ ] 08 — Concurrency patterns
 - [ ] 09 — Pitfalls
 - [ ] 10 — Testing concurrent code
+- [ ] 11 — Standard library tour
 - [ ] Challenge 01 — Parallel Sum
 - [ ] Challenge 02 — Worker Pool
 - [ ] Challenge 03 — Pipeline

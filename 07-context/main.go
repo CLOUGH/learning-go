@@ -84,3 +84,19 @@ func main() {
 
 	valueDemo()
 }
+
+/*
+Expected output:
+
+--- context.WithTimeout cancels workers automatically ---
+worker 1: processing 1
+worker 1: processing 2
+worker 1: stopping (context deadline exceeded)
+
+--- context.WithCancel: cancel triggered manually ---
+worker 2: processing 1
+worker 2: stopping (context canceled)
+
+--- context.WithValue: request-scoped data (use sparingly) ---
+handling request: req-42
+*/

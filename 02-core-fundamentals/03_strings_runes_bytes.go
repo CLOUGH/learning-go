@@ -57,3 +57,18 @@ func demoStringsRunesBytes() {
 	}
 	fmt.Println("built with strings.Builder:", b.String())
 }
+
+/*
+Expected output (from demoStringsRunesBytes, called via main.go):
+
+--- strings are immutable UTF-8 byte sequences ---
+len(s) in bytes: 14
+byte-by-byte (wrong for non-ASCII): 104 195 169 108 108 111 44 32 228 184 150 231 149 140
+range over string (correct): [0]=h [1]=é [3]=l [4]=l [5]=o [6]=, [7]=  [8]=世 [11]=界
+character count via range: 9
+as []rune, len = 9
+as []byte, len = 14
+back to string: héllo, 世界
+'A' as a rune is the integer 65
+built with strings.Builder: part0-part1-part2-
+*/

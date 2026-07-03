@@ -63,3 +63,16 @@ func main() {
 	wg.Wait()
 	fmt.Println("SafeAdder total (always 100):", safe.Total())
 }
+
+/*
+Expected output:
+
+--- run this file with -race to see RacyAdder get caught ---
+    go run -race ./10-testing-and-race
+RacyAdder total (may not be 100): 99
+SafeAdder total (always 100): 100
+
+RacyAdder's total is genuinely different every run (99 here; could be
+anything up to 100, occasionally even 100 by luck) - that's the data
+race, not a mistake in this comment. SafeAdder's is always exactly 100.
+*/

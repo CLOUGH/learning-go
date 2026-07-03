@@ -72,3 +72,17 @@ func main() {
 	}
 	// Note: output order is not guaranteed - values race across 3 workers.
 }
+
+/*
+Expected output (one possible order - only the *set* {1,4,9,16,25,36,49,64}
+is guaranteed, not this ordering):
+
+squared: 1
+squared: 9
+squared: 4
+squared: 25
+squared: 16
+squared: 36
+squared: 64
+squared: 49
+*/

@@ -74,3 +74,23 @@ func demoArraysSlicesMaps() {
 	// depends on it. Sort the keys yourself if you need stable output.
 	fmt.Println("map length:", len(m))
 }
+
+/*
+Expected output (from demoArraysSlicesMaps, called via main.go):
+
+--- arrays (value semantics) ---
+arr1: [1 2 3] arr2: [99 2 3]
+
+--- slices: a view over a backing array, not a value ---
+s1=[0 0 0] len=3 cap=5
+mutating `view` also changed `original`: [1 999 3 4 5]
+b reveals a's append because they share a backing array: [1 2 100 0]
+src untouched after copy+mutate dst: [1 2 3] [-1 2 3]
+
+--- maps ---
+read from nil map is safe: 0
+a is present: 1
+z is absent
+after delete: map[b:2]
+map length: 1
+*/

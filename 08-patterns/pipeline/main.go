@@ -49,3 +49,11 @@ func main() {
 		fmt.Println("result:", v)
 	}
 }
+
+/*
+Expected output (deterministic - a single-lane pipeline preserves order):
+
+result: 4
+result: 16
+result: 36
+*/

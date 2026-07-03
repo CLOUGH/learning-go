@@ -24,3 +24,15 @@ func main() {
 		fmt.Printf("request %d handled at %v\n", req, time.Since(start).Round(time.Millisecond))
 	}
 }
+
+/*
+Expected output (the exact millisecond values will drift a little run to
+run - real wall-clock timing, not simulated - but each should land
+roughly 200ms after the previous one):
+
+request 1 handled at 200ms
+request 2 handled at 401ms
+request 3 handled at 601ms
+request 4 handled at 800ms
+request 5 handled at 1s
+*/

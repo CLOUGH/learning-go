@@ -58,3 +58,14 @@ func demoPointers() {
 	// small and immutability is desirable (harder to reason about
 	// accidental mutation otherwise).
 }
+
+/*
+Expected output (from demoPointers, called via main.go):
+
+--- pointers: & takes an address, * dereferences it ---
+after moveByValue, p is unchanged: {1 2}
+after moveByPointer, p.X actually changed: {11 2}
+new(point): {5 0}
+nil pointer itself is printable: <nil>
+recovered: runtime error: invalid memory address or nil pointer dereference
+*/

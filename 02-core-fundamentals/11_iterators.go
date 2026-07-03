@@ -95,3 +95,33 @@ func demoIterators() {
 		fmt.Println(k, "=", m[k])
 	}
 }
+
+/*
+Expected output (from demoIterators, called via main.go):
+
+--- range-over-func: custom iterators (Go 1.23+) ---
+countdown: 3
+countdown: 2
+countdown: 1
+--- breaking early stops the iterator ---
+still counting: 10
+still counting: 9
+still counting: 8
+
+--- iter.Seq2: two values per step ---
+0 a
+1 b
+2 c
+
+--- the standard library's own iterators: slices and maps ---
+value: 30
+value: 10
+value: 20
+index 0 -> 30
+index 1 -> 10
+index 2 -> 20
+sorted copy: [10 20 30] (original untouched: [30 10 20] )
+a = 1
+b = 2
+c = 3
+*/

@@ -46,3 +46,14 @@ func demoMethodsAndReceivers() {
 	// interfaces get involved.
 	fmt.Println("(see the comment above for the compile error this would cause)")
 }
+
+/*
+Expected output (from demoMethodsAndReceivers, called via main.go):
+
+--- value vs. pointer receivers ---
+count after two Inc(): 2
+
+--- the method-set gotcha: interfaces care about the difference ---
+via interface, count is now: 3
+(see the comment above for the compile error this would cause)
+*/

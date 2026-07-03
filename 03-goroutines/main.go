@@ -86,3 +86,41 @@ func main() {
 
 	interleaving()
 }
+
+/*
+Expected output (order caveats below - this is concurrent code):
+
+--- broken: main may exit before the goroutine runs ---
+hello from main
+hello from a goroutine
+
+--- fixed: sync.WaitGroup makes main wait ---
+worker got: three
+worker got: two
+worker got: one
+all workers done
+
+--- Go 1.25+: wg.Go(f) replaces Add(1)+go func(){defer Done(); f()}() ---
+worker got: three
+worker got: one
+worker got: two
+all workers done
+
+--- goroutines interleave; order is not guaranteed ---
+goroutine 4 finished
+goroutine 3 finished
+goroutine 2 finished
+goroutine 1 finished
+goroutine 0 finished
+
+Caveats:
+  - "hello from main"/"hello from a goroutine" order in the first block
+    can flip, or the goroutine's line can be missing entirely - that's
+    the whole point of broken().
+  - "worker got: X" order in both WaitGroup examples is genuinely
+    unordered - any permutation of one/two/three is correct.
+  - The final block's 4,3,2,1,0 order comes from each goroutine sleeping
+    a different, staggered duration (id 4 sleeps least, id 0 sleeps
+    most), so it's consistent in practice, but is still determined by
+    the scheduler, not guaranteed by the language.
+*/

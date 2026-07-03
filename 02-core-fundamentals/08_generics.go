@@ -88,3 +88,24 @@ func demoGenerics() {
 	// yourself - the classic generics exercise - so they're deliberately
 	// not spoiled here.
 }
+
+/*
+Expected output (from demoGenerics, called via main.go):
+
+--- generic functions ---
+Max(3, 7): 7
+Max(3.5, 1.2): 3.5
+Max("go", "rust"): rust
+Sum of ints: 10
+Sum of float64s: 4
+
+--- generic types ---
+popped: c
+popped: b
+popped: a
+
+--- the standard library's own generic helpers ("slices", "maps", "cmp") ---
+sorted: [1 2 5 8 9]
+contains 8: true
+max: 9
+*/

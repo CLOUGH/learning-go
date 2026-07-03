@@ -75,3 +75,35 @@ func main() {
 
 	closedChannelBehavior()
 }
+
+/*
+Expected output:
+
+--- unbuffered channel: send blocks until received ---
+goroutine: about to send
+main: received hello
+
+--- buffered channel: send only blocks when full ---
+sent two values without a receiver ready
+1
+2
+
+--- producer/consumer with close() + range ---
+consumed: 1
+consumed: 2
+consumed: 3
+consumed: 4
+consumed: 5
+channel closed, loop exited cleanly
+
+--- reading a closed channel: zero value + ok=false ---
+first read: 42 true
+second read: 0 false
+
+One line's position isn't guaranteed: unbufferedDemo's goroutine prints
+"goroutine: send completed" AFTER the channel rendezvous with main, as an
+unsynchronized continuation racing everything that runs after it - it
+usually appears right after "main: received hello", but can just as
+easily show up interleaved into the next section's output instead
+(it did, in the run this comment was captured from).
+*/

@@ -94,3 +94,27 @@ func main() {
 
 	cancellationPattern()
 }
+
+/*
+Expected output:
+
+--- select waits on whichever channel is ready first ---
+received: from ch2
+received: from ch1
+
+--- default makes select non-blocking ---
+nothing ready, moving on instead of blocking
+
+--- time.After for timeouts ---
+timed out waiting for the slow goroutine
+
+--- done-channel cancellation ---
+main received: 0
+main received: 1
+main received: 2
+worker: told to stop
+
+"from ch2" prints before "from ch1" because ch2's goroutine sleeps 10ms
+and ch1's sleeps 30ms - deterministic given those staggered delays, but
+still ultimately at the scheduler's discretion, not a language guarantee.
+*/

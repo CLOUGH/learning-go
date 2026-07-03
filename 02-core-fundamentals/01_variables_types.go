@@ -56,3 +56,15 @@ func demoVariablesAndTypes() {
 
 	fmt.Println(name, "is", age, "years old")
 }
+
+/*
+Expected output (from demoVariablesAndTypes, called via main.go):
+
+--- variables, zero values, const/iota, type conversion ---
+zero values: 0 0 false ""
+sized types: 127 255 3.14
+explicit conversion: 3.3333333333333335
+iota enum: 0 3 6
+untyped constant adapts: 3.14159 3.14159
+gopher is 5 years old
+*/
