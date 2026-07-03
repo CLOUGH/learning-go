@@ -12,3 +12,12 @@ go test ./01-fundamentals/katas/...
 2. **`kata2_counter.go`** — `NewCounter() func() int`. A closure that
    remembers state between calls — the same mechanism goroutines will
    later capture (for better or worse).
+
+## Solutions
+
+Have a real attempt first — then check `solutions/solution.go` against
+what you wrote:
+
+```sh
+go test ./01-fundamentals/katas/solutions/...
+```

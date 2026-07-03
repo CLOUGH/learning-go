@@ -10,3 +10,12 @@ go test -race ./04-channels/katas/...
 2. **`kata2_take.go`** — `Take(in <-chan int, n int) <-chan int`. Read
    only the first `n` values from `in`, then close the output — practice
    with directional channels and closing at the right moment.
+
+## Solutions
+
+Have a real attempt first — then check `solutions/solution.go` against
+what you wrote:
+
+```sh
+go test -race ./04-channels/katas/solutions/...
+```

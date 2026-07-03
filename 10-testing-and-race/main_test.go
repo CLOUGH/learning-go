@@ -59,3 +59,15 @@ func BenchmarkSafeAdderInc(b *testing.B) {
 		}
 	})
 }
+
+// BenchmarkSafeAdderAddSequential benchmarks from a single goroutine (no
+// concurrency, no lock contention) - this is the case for testing.B.Loop
+// (Go 1.24+), which replaced the classic `for i := 0; i < b.N; i++` idiom.
+// b.RunParallel/pb.Next() above is still the right tool once you actually
+// want multiple goroutines hammering the same benchmarked code at once.
+func BenchmarkSafeAdderAddSequential(b *testing.B) {
+	a := &SafeAdder{}
+	for b.Loop() {
+		a.Add(1)
+	}
+}

@@ -39,6 +39,9 @@ func main() {
 	demoGenerics()
 	fmt.Println()
 
+	demoIterators()
+	fmt.Println()
+
 	demoErrors()
 	fmt.Println()
 

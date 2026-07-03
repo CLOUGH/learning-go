@@ -12,3 +12,12 @@ go test -race ./06-sync/katas/...
    strings (`Add`, `Count`). The same mutex-protected-state pattern as the
    lesson's `Counter` exercise, applied to a different data shape — the
    repetition is the point.
+
+## Solutions
+
+Have a real attempt first — then check `solutions/solution.go` against
+what you wrote:
+
+```sh
+go test -race ./06-sync/katas/solutions/...
+```

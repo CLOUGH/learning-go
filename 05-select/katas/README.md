@@ -9,3 +9,12 @@ go test -race ./05-select/katas/...
 2. **`kata2_withtimeout.go`** — `WithTimeout(ch <-chan int, d
    time.Duration) (int, bool)`. Receive from `ch`, but give up after `d`
    — the timeout pattern from the lesson, as a reusable function.
+
+## Solutions
+
+Have a real attempt first — then check `solutions/solution.go` against
+what you wrote:
+
+```sh
+go test -race ./05-select/katas/solutions/...
+```

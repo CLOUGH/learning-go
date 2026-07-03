@@ -11,3 +11,12 @@ go test -race ./03-goroutines/katas/...
    in its own goroutine and return a channel that's closed the moment `f`
    finishes — a small building block you'll see again, formalized, once
    channels and `select` are introduced.
+
+## Solutions
+
+Have a real attempt first — then check `solutions/solution.go` against
+what you wrote:
+
+```sh
+go test -race ./03-goroutines/katas/solutions/...
+```

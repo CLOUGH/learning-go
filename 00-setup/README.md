@@ -1,7 +1,7 @@
 # 00 — Setup
 
-You already have Go installed (`go version` → 1.22+). A few things worth
-knowing before you start:
+You already have Go installed (`go version` → 1.26+; `go.mod` at the repo
+root declares `go 1.26`). A few things worth knowing before you start:
 
 ## Modules
 
@@ -42,15 +42,33 @@ underlying technology. Java and JS mostly don't need an equivalent: the JVM
 and JS engines either synchronize memory model details for you or (for JS)
 never run your code on more than one thread in the first place.
 
-## A note on Go version 1.22
+## A note on Go versions, 1.22 through 1.26
 
-Go 1.22 (what's installed here) changed a long-standing gotcha: in older Go,
-a `for` loop's variable was reused across iterations, which meant capturing
-the loop variable in a goroutine closure would often give you the wrong
-value. Go 1.22 gives each iteration its own variable. Lesson
-[09-pitfalls](../09-pitfalls/README.md) covers this in detail, including why
-you'll still see the old workaround in code and tutorials written before
-2024.
+This curriculum was originally written against Go 1.22 and has since been
+updated for Go 1.26 — both the installed toolchain and `go.mod`'s `go`
+directive moved forward, and several lessons now cover language/stdlib
+features that didn't exist in 1.22. Two version-specific things worth
+knowing up front:
+
+- **Go 1.22** changed a long-standing gotcha: in older Go, a `for` loop's
+  variable was reused across iterations, which meant capturing the loop
+  variable in a goroutine closure would often give you the wrong value. Go
+  1.22 gives each iteration its own variable. Lesson
+  [09-pitfalls](../09-pitfalls/README.md) covers this in detail, including
+  why you'll still see the old workaround in code and tutorials written
+  before 2024.
+- **`go vet`'s `stdversion` analyzer** (added in 1.23) flags any use of a
+  standard-library symbol that's newer than the `go` line in `go.mod` —
+  e.g. it would catch `sync.WaitGroup.Go` (added in 1.25) being used in a
+  module that still declared `go 1.22`. This is exactly why `go.mod` here
+  was bumped to `go 1.26` alongside the toolchain upgrade, rather than left
+  at 1.22 — some of the newer material genuinely needs it.
+
+Where a lesson uses something newer than plain Go 1.22, it says so
+explicitly and names the version that introduced it — see 03-goroutines
+(`sync.WaitGroup.Go`, container-aware `GOMAXPROCS`), 02-core-fundamentals
+(range-over-func iterators, `iter.Seq`, the iterator-based `slices`/`maps`
+functions), and 10-testing-and-race (`testing/synctest`, `testing.B.Loop`).
 
 ## Katas
 

@@ -13,3 +13,12 @@ go test -race ./09-pitfalls/katas/...
    `Counter`/`VisitorSet` katas, on a slice this time - and a reminder
    that `Items()` must return a copy, not the live internal slice, or a
    caller could race with future `Add` calls just by holding the result.
+
+## Solutions
+
+Have a real attempt first — then check `solutions/solution.go` against
+what you wrote:
+
+```sh
+go test -race ./09-pitfalls/katas/solutions/...
+```

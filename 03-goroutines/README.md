@@ -66,6 +66,44 @@ things finish." The closest JS analogue is `Promise.all([...])`, though
 that's waiting on already-scheduled async work rather than explicitly
 counting down.
 
+### Go 1.25+: `wg.Go(f)`
+
+Go 1.25 added a shortcut for the exact pattern above:
+
+```go
+// before (still perfectly valid, and what you'll see in any pre-1.25 codebase):
+wg.Add(1)
+go func() {
+    defer wg.Done()
+    doWork()
+}()
+
+// Go 1.25+:
+wg.Go(func() {
+    doWork()
+})
+```
+
+`wg.Go(f)` does precisely `Add(1)` + start a goroutine + `defer Done()`
+around `f` — it's the same three concepts you just learned, just spelled
+with less boilerplate and one fewer place to forget the `Done()`. It
+doesn't change anything else about how `WaitGroup` behaves. `main.go` has
+both versions side by side (`withWaitGroup` and `withWaitGroupGo`) so you
+can see they do the same thing.
+
+### A scheduler note: container-aware `GOMAXPROCS` (Go 1.25+)
+
+`GOMAXPROCS` controls how many OS threads can run goroutines simultaneously
+— it's the "N" in the M:N scheduler mentioned above. Historically it
+defaulted to the number of logical CPUs Go could see, which caused a
+real problem in containers (Docker/Kubernetes): a container limited to,
+say, 2 CPU-equivalents on a 64-core host would still see `GOMAXPROCS=64`,
+massively over-scheduling and hurting performance. As of Go 1.25, the
+runtime reads Linux cgroup CPU limits and sets `GOMAXPROCS` accordingly
+by default, updating it automatically if the limit changes at runtime.
+You generally don't need to set `GOMAXPROCS` by hand anymore in a
+containerized deployment because of this.
+
 ## What this lesson does *not* cover yet
 
 Goroutines on their own have no way to communicate results back — the demo

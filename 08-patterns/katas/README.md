@@ -12,3 +12,12 @@ go test -race ./08-patterns/katas/...
    Run every task in `tasks`, with at most `limit` running concurrently
    at any moment — the worker-pool/semaphore idea from this lesson,
    applied to plain functions instead of typed jobs.
+
+## Solutions
+
+Have a real attempt first — then check `solutions/solution.go` against
+what you wrote:
+
+```sh
+go test -race ./08-patterns/katas/solutions/...
+```

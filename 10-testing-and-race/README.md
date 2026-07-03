@@ -55,6 +55,53 @@ case <-time.After(time.Second):
 }
 ```
 
+## `testing/synctest`: deterministic concurrency tests (Go 1.25+)
+
+The previous section says "don't synchronize tests with `time.Sleep`" —
+but sometimes the thing you're testing is genuinely time-based (a
+timeout, a retry backoff), and shrinking real durations down to
+milliseconds to keep the test suite fast just trades one flakiness
+problem for another (a slow CI box blowing through a 10ms budget).
+
+`synctest.Test` runs a test function inside an isolated "bubble" with a
+**fake clock**. Inside the bubble, `time.Sleep`, timers, and context
+deadlines all use virtual time, which jumps forward instantly the moment
+every goroutine in the bubble is blocked waiting on something (a channel,
+a timer, `sync.WaitGroup.Wait`, ...). The result: a test that "waits" for
+a 5-second timeout runs in a few milliseconds of real time, and does so
+**deterministically** — no race against the CI box's actual clock speed.
+
+```go
+func TestWaitForSignalTimesOut(t *testing.T) {
+    synctest.Test(t, func(t *testing.T) {
+        ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+        defer cancel()
+
+        sig := make(chan struct{}) // nobody ever closes this
+        err := waitForSignal(ctx, sig)
+
+        if err != context.DeadlineExceeded {
+            t.Fatalf("err = %v, want DeadlineExceeded", err)
+        }
+    })
+}
+```
+
+`synctest.Wait()` is the other half: it blocks until every other goroutine
+in the bubble is durably blocked, which lets you assert "the goroutine I
+started has definitely finished its work" without a sleep or an
+extra channel round-trip purely for synchronization. See
+`synctest_test.go` in this lesson for both patterns running against the
+same `waitForSignal` helper (the same `select` on `ctx.Done()` shape from
+lessons 05 and 07).
+
+One constraint worth knowing up front: everything a bubbled test touches
+should be self-contained — real network I/O, goroutines started outside
+the bubble, and anything else that can only be unblocked by something
+outside the bubble will make `Test` hang/panic rather than resolve
+instantly, since the fake clock only advances when *every* goroutine in
+the bubble is blocked on something the bubble itself controls.
+
 ## `t.Parallel()`
 
 Marks a test as safe to run concurrently with other parallel tests in the
@@ -90,6 +137,34 @@ func BenchmarkCounterInc(b *testing.B) {
 which is what you want when benchmarking something meant to be called
 concurrently (like a mutex-protected counter) — a single-goroutine
 benchmark wouldn't tell you anything about lock contention.
+
+### `testing.B.Loop` (Go 1.24+)
+
+For an ordinary, single-goroutine benchmark (no `b.RunParallel`), Go 1.24
+replaced the classic pattern:
+
+```go
+// old:
+for i := 0; i < b.N; i++ {
+    doWork()
+}
+
+// Go 1.24+:
+for b.Loop() {
+    doWork()
+}
+```
+
+`b.Loop()` resets the timer the moment it's first called (so setup code
+above the loop doesn't count), stops the timer once it returns `false`
+(so cleanup code below the loop doesn't count either), and keeps the
+compiler from optimizing away the loop body — all things the old `b.N`
+pattern made you get right by hand. It only replaces the *outer*, plain
+loop; `b.RunParallel`/`pb.Next()` is still the right (and different) tool
+the moment you want multiple goroutines calling the benchmarked code at
+once, which is most of what this lesson cares about. `main_test.go` has
+both: `BenchmarkSafeAdderInc` (parallel, contention-focused) and
+`BenchmarkSafeAdderAddSequential` (single-goroutine, `b.Loop()`).
 
 Run it:
 

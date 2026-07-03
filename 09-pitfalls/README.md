@@ -24,6 +24,18 @@ scheduler makes goroutine counts cheap to check (`runtime.NumGoroutine()`)
 and a `pprof` goroutine dump trivial to pull, so this class of bug is much
 easier to *detect* in Go than a hung Promise chain in JS.
 
+**Go 1.26** goes a step further with an experimental `goroutineleak`
+profile (`GOEXPERIMENT=goroutineleakprofile` at build time, then available
+via `runtime/pprof` or the `/debug/pprof/goroutineleak` HTTP endpoint):
+instead of just listing every currently-running goroutine like the
+ordinary goroutine profile, it uses the garbage collector's reachability
+analysis to specifically flag goroutines that are blocked on something
+(a channel, `sync.Mutex`, `sync.Cond`, ...) that can now *never* unblock
+them — i.e. it tries to point directly at the leak, not just the full
+goroutine dump you'd have to read through by hand. It's experimental and
+the API may still change, but it's worth knowing it exists the moment you
+suspect this exact bug in a real service.
+
 ## 2. Loop-variable capture (pre-1.22 vs. 1.22+)
 
 Before Go 1.22, this printed `3 3 3` (or similar), not `0 1 2`:
@@ -36,8 +48,10 @@ for i := 0; i < 3; i++ {
 
 `i` was one variable, reused every iteration; by the time the goroutines
 actually ran, the loop had usually already finished and `i` was `3`. Go
-1.22 (what's installed here) changed the language spec so each iteration
-gets its own `i` — this now correctly prints `0 1 2` (in some order). You
+1.22 changed the language spec so each iteration gets its own `i` — this
+now correctly prints `0 1 2` (in some order); this repo's `go.mod` targets
+1.26, well past that change, so every loop you write here already gets the
+fixed behavior. You
 still need to know the *old* behavior because: (a) any codebase/tutorial
 targeting Go <1.22 relies on the old semantics and uses the classic
 workaround of passing the variable in as a parameter (`go func(i int)

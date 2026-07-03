@@ -15,3 +15,13 @@ go test -bench=. ./10-testing-and-race/katas/...
    `b.RunParallel`, then run both with `-bench=.` and compare the
    `ns/op` — a concrete, measured answer to "is atomic actually faster
    here?" instead of just taking it on faith.
+
+## Solutions
+
+Have a real attempt first — then check `solutions/solution.go` against
+what you wrote:
+
+```sh
+go test -race ./10-testing-and-race/katas/solutions/...
+go test -bench=. -benchmem ./10-testing-and-race/katas/solutions/...
+```

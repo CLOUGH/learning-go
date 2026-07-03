@@ -44,6 +44,8 @@ adjust if that's not your background.
   randomized on purpose (Java's `HashMap` and PHP's arrays both have this
   "don't rely on order" property too, for related reasons; JS `Map`
   and PHP's ordered arrays actually preserve insertion order, unlike Go).
+  Getting a *deterministic* view of a map's keys is what
+  [11_iterators.go](11_iterators.go) covers, via the `maps` package.
 - **[03_strings_runes_bytes.go](03_strings_runes_bytes.go)** — strings are
   immutable UTF-8 byte sequences (like Java/JS/PHP strings: immutable);
   `len(s)` counts bytes, not characters — different from Java/JS, where
@@ -93,6 +95,20 @@ adjust if that's not your background.
   `List<Integer>` is just `List` with casts inserted by the compiler).
   JS and PHP have no generics at all — everything's dynamically typed, so
   the problem generics solve doesn't really arise the same way.
+- **[11_iterators.go](11_iterators.go)** *(Go 1.23+)* — range-over-func:
+  writing your own iterator as a plain function shaped like
+  `func(yield func(V) bool)` (the `iter.Seq[V]` type), so it can be used
+  directly in a `for ... range` loop, plus the standard library's own
+  iterator-returning functions (`slices.Values`, `slices.All`,
+  `slices.Collect`, `slices.Sorted`, `maps.Keys`, `maps.Values`). If
+  you've used C#, this is conceptually close to `IEnumerable<T>` +
+  `yield return`; Java's `Iterator<T>`/`Iterable<T>` is the nearest analogue
+  there, though Go's version is just a function value, not an interface
+  with `hasNext()`/`next()`. JS generator functions (`function*` +
+  `yield`) are the closest conceptual match of your four languages — Go's
+  `yield` is a plain callback you invoke yourself rather than a language
+  keyword that suspends execution, but the "produce values one at a time,
+  consumer can stop early" shape is the same idea.
 - **[09_errors.go](09_errors.go)** — wrapping errors with `fmt.Errorf` and
   `%w`, sentinel errors with `errors.Is`, custom error types with
   `errors.As`. `errors.Is`/`errors.As` walking a wrapped chain is the

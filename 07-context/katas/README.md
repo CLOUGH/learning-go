@@ -11,3 +11,12 @@ go test -race ./07-context/katas/...
    time.Duration) error`. Run `f` in the background; return `nil` if it
    finishes within `timeout`, otherwise return `context.DeadlineExceeded`
    without waiting any further for it.
+
+## Solutions
+
+Have a real attempt first — then check `solutions/solution.go` against
+what you wrote:
+
+```sh
+go test -race ./07-context/katas/solutions/...
+```

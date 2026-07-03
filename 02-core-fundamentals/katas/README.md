@@ -9,3 +9,12 @@ go test ./02-core-fundamentals/katas/...
 2. **`kata2_sumpointers.go`** — `SumPointers(nums []*int) int`. Pointer
    practice: sum the values behind a slice of pointers, treating any nil
    pointer as 0 instead of panicking.
+
+## Solutions
+
+Have a real attempt first — then check `solutions/solution.go` against
+what you wrote:
+
+```sh
+go test ./02-core-fundamentals/katas/solutions/...
+```

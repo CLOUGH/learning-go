@@ -28,3 +28,15 @@ go vet ./00-setup/katas/vet/...
 
 Read the warning, find the mismatched verb, and fix it so `go vet` is
 silent.
+
+## Solutions
+
+`gofmt/solution/messy.go` is the fully-formatted version (i.e. exactly
+what `gofmt -w` produces) and `vet/solution/vetty.go` has the corrected
+format verb — check them after you've had a real attempt, or `diff`
+against them directly:
+
+```sh
+diff 00-setup/katas/gofmt/messy.go 00-setup/katas/gofmt/solution/messy.go
+diff 00-setup/katas/vet/vetty.go   00-setup/katas/vet/solution/vetty.go
+```
