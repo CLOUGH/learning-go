@@ -21,8 +21,22 @@ hundreds of thousands of goroutines onto a small number of OS threads (an
 "M:N scheduler"). That's why they're cheap: a goroutine starts with a tiny
 (≈2KB) growable stack, versus megabytes for an OS thread. This is the
 whole reason Go programs can casually spin up thousands of goroutines where
-an equivalent Java or C++ program would be careful about spinning up
-thousands of threads.
+an equivalent Java program (`new Thread(...)`, or even a
+`ExecutorService` thread pool) or C/C++ program (`pthread_create`,
+`std::thread`) would be careful about spinning up thousands of OS threads.
+
+If your mental model of "concurrency" comes from JavaScript, recalibrate:
+JS is single-threaded with an event loop — `async`/`await` and Promises
+give you *concurrency* (interleaving), but never true *parallelism* (two
+pieces of your JS never run at the exact same instant, only Node's
+underlying C++ thread pool for I/O does). Goroutines are genuinely
+scheduled across multiple OS threads/CPU cores — real parallelism, not
+just interleaving — which is exactly why unsynchronized access to shared
+memory (lesson 06) is a real hazard in Go in a way it mostly isn't in
+plain JS. PHP's classic model (one request = one process/thread, nothing
+concurrent inside a single request) is even further from this — goroutines
+have no direct PHP equivalent until you reach for newer, less common tools
+like Fibers or a async extension.
 
 ## The catch: `main` doesn't wait
 
@@ -45,6 +59,12 @@ You need a way to wait. The tool for that is `sync.WaitGroup`:
 
 `main.go` walks through the broken version, then the fixed version, then a
 version that shows goroutines actually interleaving.
+
+`WaitGroup` plays the role of Java's `CountDownLatch` or calling `.join()`
+on every `Thread`, or C++'s `std::thread::join()` — "block here until N
+things finish." The closest JS analogue is `Promise.all([...])`, though
+that's waiting on already-scheduled async work rather than explicitly
+counting down.
 
 ## What this lesson does *not* cover yet
 

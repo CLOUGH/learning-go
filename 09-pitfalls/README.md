@@ -15,6 +15,15 @@ early (timed out, client disconnected). Fix: always give a blocking
 goroutine a way out, usually a `context.Context` or `done` channel it also
 selects on.
 
+The same *shape* of bug shows up as a leaked Java `Thread` that never
+terminates (e.g. blocked forever on a `BlockingQueue.take()` nobody ever
+feeds), or a JS Promise that never resolves/rejects (harder to spot, since
+there's no OS-level thread to show up in a profiler — it just quietly
+keeps its closure's memory alive forever). The difference is that Go's
+scheduler makes goroutine counts cheap to check (`runtime.NumGoroutine()`)
+and a `pprof` goroutine dump trivial to pull, so this class of bug is much
+easier to *detect* in Go than a hung Promise chain in JS.
+
 ## 2. Loop-variable capture (pre-1.22 vs. 1.22+)
 
 Before Go 1.22, this printed `3 3 3` (or similar), not `0 1 2`:
@@ -35,6 +44,16 @@ workaround of passing the variable in as a parameter (`go func(i int)
 {...}(i)`), and (b) it's a very frequently asked interview/code-review
 question.
 
+If you've ever debugged `for (var i = 0; ...) { setTimeout(() => console.log(i)) }`
+in JavaScript printing the same final value every time — this is the
+*exact same bug*, for the exact same reason (one shared binding, not one
+per iteration). JS's fix was introducing `let`, which — like Go 1.22's
+change — gives each iteration its own binding. Go didn't add a new
+keyword; it just changed what plain `for ... := ...` means. Java and C++
+range-based `for` loops never had this problem in the first place, because
+their loop variables were never something a lambda/closure could capture
+by reference the way Go and (pre-`let`) JS allowed.
+
 ## 3. Deadlock: all goroutines asleep
 
 ```go
@@ -47,6 +66,11 @@ that will never happen, the Go runtime detects it and crashes with `fatal
 error: all goroutines are asleep - deadlock!`. This is actually a gift —
 much better than a silent hang — learn to read that message; it dumps
 every goroutine's stack, which tells you exactly where each one is stuck.
+C/C++ (`pthread_mutex_lock` on a mutex two threads both want) and Java
+(two threads each `synchronized` on the other's lock) can deadlock just as
+easily, but neither runtime detects it for you automatically the way Go
+does here — in Java you'd reach for a thread dump (`jstack`) yourself; in
+C/C++ the program just hangs forever with no diagnostic at all.
 
 ## 4. Sending on / closing a closed channel
 

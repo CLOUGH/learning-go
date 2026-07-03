@@ -10,6 +10,14 @@ Every lesson is its own `package main` in its own directory — that's normal
 in Go: one directory = one package, and only one `package main` + `func
 main()` per runnable directory.
 
+`go.mod` plays the role `package.json` plays for npm, `pom.xml`/`build.gradle`
+for Maven/Gradle, or `composer.json` for PHP: it names the module and pins
+dependency versions (there's also a `go.sum`, like `package-lock.json`).
+There's no build step to think about the way C/C++ has a Makefile/CMake to
+wrangle — `go build`/`go run` compile the whole dependency graph directly,
+and it's fast enough that "compile" barely feels like a separate step from
+"run".
+
 ## Commands you'll use constantly
 
 ```sh
@@ -27,6 +35,12 @@ detect concurrent unsynchronized access to memory. It's slower, but it turns
 exact line and goroutine stack that raced." Get in the habit of running
 tests with `-race` any time goroutines are involved — you'll use it from
 lesson 03 onward.
+
+If you've used C/C++, this is the same idea as Clang/GCC's ThreadSanitizer
+(`-fsanitize=thread`) — Go's race detector is actually built on the same
+underlying technology. Java and JS mostly don't need an equivalent: the JVM
+and JS engines either synchronize memory model details for you or (for JS)
+never run your code on more than one thread in the first place.
 
 ## A note on Go version 1.22
 

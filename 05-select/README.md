@@ -4,6 +4,17 @@
 proceeds with whichever one is ready first. It's the switch statement of
 concurrent Go.
 
+If you've written C, the name and idea are a deliberate nod to the Unix
+`select()`/`poll()` syscalls (wait on multiple file descriptors, proceed
+with whichever is ready) — same concept, one level up, for channels
+instead of file descriptors. If you know JS, the timeout pattern below is
+similar in *purpose* to `Promise.race([task, timeoutPromise])`, though
+`select` also handles ongoing repeated waiting (inside a loop) far more
+naturally than a one-shot `Promise.race`. Java and C++ have no
+single built-in construct that unifies "wait on any of these" the way
+`select` does — you'd typically poll, use a `CompletableFuture.anyOf`
+(Java), or hand-roll it with condition variables.
+
 ```go
 select {
 case v := <-ch1:

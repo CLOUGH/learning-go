@@ -24,6 +24,14 @@ concurrency tests with `-race` in CI.** `main.go`'s `RacyAdder` is a
 demo you can run through `go vet`-style manual inspection and then
 actually catch with `-race`.
 
+If you've used C/C++, this is the same underlying technology as Clang/
+GCC's ThreadSanitizer (`-fsanitize=thread`) — Go's race detector was built
+directly on that project's runtime library. Java has nothing built into
+`javac`/the JVM that catches races this precisely; the closest tools are
+external (e.g. IBM's old ConTest, or just careful code review), which is
+part of why data races historically stayed hidden longer in Java codebases
+than they do in a Go codebase that runs `-race` in CI.
+
 ## Don't synchronize tests with `time.Sleep`
 
 ```go
@@ -53,7 +61,17 @@ Marks a test as safe to run concurrently with other parallel tests in the
 same package (Go still runs non-parallel tests sequentially first, then
 runs all parallel ones together). Use it for independent tests to speed up
 the suite — but never for tests that share mutable state, or you've just
-introduced the exact race you're supposed to be testing for.
+introduced the exact race you're supposed to be testing for. Comparable to
+JUnit 5's `@Execution(CONCURRENT)` or TestNG's parallel methods — same
+tradeoff applies there too (shared fixtures become a hazard, not a
+convenience).
+
+Go's built-in `testing` package (`go test`, `*_test.go`, `func TestXxx(t
+*testing.T)`) plays the role JUnit plays for Java or PHPUnit for PHP —
+it's just part of the standard toolchain instead of a separate dependency
+you add, and there's no separate assertion library bundled in (no
+`assertEquals` — you write the `if got != want { t.Errorf(...) }` yourself,
+or reach for a third-party assertion library if you want one).
 
 ## Benchmarking concurrent code
 

@@ -37,17 +37,33 @@ block until it's released. Always pair `Lock()` with a `defer Unlock()`
 right after it, so the unlock happens even if the function returns early
 or panics.
 
+`sync.Mutex` is the same concept as Java's `synchronized` keyword/
+`ReentrantLock`, C's `pthread_mutex_t`, or C++'s `std::mutex` — the main
+difference is Go has no `synchronized` block sugar or automatic
+lock-on-scope-exit (no RAII), which is exactly why the `defer Unlock()`
+idiom exists: it's Go's manual stand-in for what C++'s
+`std::lock_guard`/`std::unique_lock` destructor gives you for free. JS and
+PHP don't need this in ordinary code — JS because it's single-threaded,
+PHP because a request's execution generally isn't sharing mutable memory
+with another concurrently-running request the way threads do.
+
 ## `sync.RWMutex`
 
 Same idea, but distinguishes readers from writers: any number of readers
 can hold `RLock()` simultaneously, but `Lock()` (for writing) excludes
 everyone. Use this when reads vastly outnumber writes and you want readers
-to not block each other.
+to not block each other. Direct equivalent of Java's `ReadWriteLock`/
+`ReentrantReadWriteLock` and C++'s `std::shared_mutex`.
 
 ## `sync.Once`
 
 Guarantees a function runs exactly once, no matter how many goroutines call
 it concurrently — the standard way to do lazy, thread-safe initialization.
+Solves the same problem Java developers reach for double-checked locking
+or a `static` initializer for, and that C++ solves with a function-local
+`static` variable (whose initialization the language itself guarantees is
+thread-safe, exactly once) — `sync.Once` is Go's explicit version of that
+same guarantee.
 
 ```go
 var once sync.Once

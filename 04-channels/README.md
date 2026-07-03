@@ -9,6 +9,17 @@ Instead of multiple goroutines fighting over the same variable (needing
 locks), you pass values through a channel, and only one goroutine touches
 the data at a time.
 
+The closest thing you've probably used is Java's `BlockingQueue` (used
+between producer/consumer threads) — a channel is essentially that, built
+into the language with its own syntax (`<-`) instead of being a library
+class. C/C++ has nothing this ergonomic built in (you'd hand-rolled this
+with a mutex + condition variable + a queue, or reach for a library).
+JS and PHP don't have a real equivalent either — JS's single-threaded
+event loop means you communicate via callbacks/Promises instead of
+handing data between concurrently-running pieces of code, and PHP
+generally doesn't have concurrently-running code within one request to
+begin with.
+
 ## Declaring and using a channel
 
 ```go

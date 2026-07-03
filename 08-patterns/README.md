@@ -9,6 +9,11 @@ A fixed number of goroutines ("workers") pull jobs from a shared channel
 and process them concurrently, capping how much work runs in parallel.
 This is the pattern you reach for whenever you have N independent tasks
 and want to bound concurrency instead of spawning one goroutine per task.
+Directly analogous to Java's `ExecutorService`/`ThreadPoolExecutor`
+(a fixed-size thread pool pulling from a task queue) or C++'s (less
+commonly hand-rolled) thread pool pattern — Go just doesn't have a
+built-in pool type, so this lesson shows you the channel-based way to
+build one yourself.
 
 ```sh
 go run ./08-patterns/workerpool
@@ -51,7 +56,9 @@ go run ./08-patterns/ratelimiter
 A buffered channel used purely for its capacity, as a counting semaphore:
 acquiring a "slot" is sending into it, releasing is receiving from it. This
 bounds how many goroutines run some section of code concurrently, without
-a full worker-pool structure.
+a full worker-pool structure. Same concept as Java's `java.util.concurrent.
+Semaphore` or C++'s `std::counting_semaphore` — Go just repurposes the
+channel you already know instead of adding a dedicated semaphore type.
 
 ```sh
 go run ./08-patterns/semaphore

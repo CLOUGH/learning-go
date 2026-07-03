@@ -7,6 +7,14 @@ pattern into something composable across an entire call chain — an HTTP
 handler, the database call it makes, the goroutines that call spawns — all
 sharing one cancellation signal.
 
+The closest thing you've likely used is JS's `AbortController`/
+`AbortSignal` (`fetch(url, { signal })`) — same idea, a cancellation token
+threaded through to whatever might need to stop early. Java's nearest
+equivalents are `Future.cancel()` or a `CompletableFuture` with a timeout,
+though neither is as pervasively threaded through every API the way `ctx`
+is in Go. C/C++ and PHP have no standard-library equivalent at all — you'd
+build this yourself (an atomic cancellation flag, checked periodically).
+
 ## Creating a context
 
 ```go
