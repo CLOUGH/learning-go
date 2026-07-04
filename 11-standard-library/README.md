@@ -120,6 +120,41 @@ go run ./11-standard-library
   already been consumed elsewhere — it's meant to be called exactly once,
   early in `main()`.
 
+## Real-world use cases
+
+- **`strings`/`strconv`** — parsing a CSV row, a config file line, or
+  query-string values out of a URL is almost entirely `strings.Split`/
+  `strings.TrimSpace` plus `strconv.Atoi`/`ParseFloat` on the pieces.
+- **`os`/`io`/`bufio`** — reading a large log file line by line with
+  `bufio.NewScanner(f)` instead of loading it entirely into memory with
+  `os.ReadFile` is the difference between a tool that works on a 10MB
+  file and one that also works on a 10GB file.
+- **`time`** — computing "is this JWT/session/cache entry expired"
+  (`time.Now().After(expiresAt)`) and "how long did this request take"
+  (`time.Since(start)`, logged or exported as a metric) are two of the
+  most common lines of `time` code in any real service.
+- **`sort`** — sorting a slice of structs by a field before rendering a
+  table or a leaderboard — `slices.SortFunc` (lesson 02) for new code,
+  `sort.Slice` in any codebase old enough to predate Go 1.21's generic
+  `slices` package.
+- **`encoding/json`** — this is the backbone of virtually every Go REST
+  API: `json.NewDecoder(r.Body).Decode(&req)` to parse an incoming
+  request, `json.NewEncoder(w).Encode(resp)` to write the response, with
+  struct tags controlling the wire format independent of your Go field
+  names.
+- **`net/http`** — building an HTTP API with nothing but the standard
+  library (`http.HandleFunc` + `http.ListenAndServe`) is a completely
+  normal, common choice for a Go service, not a toy example — plenty of
+  production services never add a web framework at all.
+- **`log`/`slog`** — structured logging with `slog` (a JSON handler in
+  production, a text handler in development) is what lets you filter and
+  query logs by field (`user_id`, `request_id`, `status`) in a log
+  aggregator instead of grepping unstructured text.
+- **`flag`** — every small Go CLI tool (a migration script, a one-off
+  data-fixup tool, an internal debugging utility) tends to reach for
+  `flag` first, before anything fancier like `cobra`, because it's
+  already there and it's enough for a handful of options.
+
 ## Run it
 
 ```sh

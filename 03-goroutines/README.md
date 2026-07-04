@@ -119,6 +119,35 @@ go run ./03-goroutines
 go test -race ./03-goroutines/...
 ```
 
+## Real-world use cases
+
+- **An HTTP server is already doing this for you.** `net/http`'s server
+  spawns one goroutine per incoming request — that's *why* a Go web
+  service handles thousands of concurrent requests on ordinary hardware
+  without you writing a single line of concurrency code yourself; it's
+  the framework's default, not something you opt into.
+- **Fire-and-forget background work** — sending a confirmation email,
+  writing an audit log entry, pushing an analytics event — after
+  responding to a request, so the caller isn't kept waiting on work they
+  don't need to see the result of:
+
+  ```go
+  func handleSignup(w http.ResponseWriter, r *http.Request) {
+      user := createUser(r)
+      go sendWelcomeEmail(user) // don't make the HTTP response wait on this
+      w.WriteHeader(http.StatusCreated)
+  }
+  ```
+
+  (Lesson 09 covers why this specific pattern needs care in a real
+  service — a goroutine like this outlives the request and needs its own
+  way to be cancelled if the process is shutting down.)
+- **`wg.Go`/`WaitGroup`** is exactly the shape of "fan out N independent
+  API calls or file reads, then proceed once they've all finished" — e.g.
+  fetching a user's profile, orders, and preferences from three services
+  in parallel before rendering a dashboard, instead of three sequential
+  round trips.
+
 ## Katas
 
 Two more practice drills beyond the exercise above — see

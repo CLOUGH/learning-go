@@ -70,6 +70,36 @@ explicitly and names the version that introduced it — see 03-goroutines
 (range-over-func iterators, `iter.Seq`, the iterator-based `slices`/`maps`
 functions), and 10-testing-and-race (`testing/synctest`, `testing.B.Loop`).
 
+## Real-world use cases
+
+This lesson's tools aren't academic — they're what actually gates code in
+a real Go project:
+
+- **CI pipelines run exactly the commands above**, in exactly this order,
+  as required checks on every pull request: `go build ./...` (does it
+  compile), `go vet ./...` and `gofmt -l .` (is it clean), `go test -race
+  ./...` (does it work, without data races). A GitHub Actions job for a Go
+  service is typically nothing more than this:
+
+  ```yaml
+  - run: go build ./...
+  - run: go vet ./...
+  - run: gofmt -l . | tee /dev/stderr | (! read)   # fails if gofmt finds anything
+  - run: go test -race ./...
+  ```
+
+- **`go.mod`/`go.sum` are what make a build reproducible** across your
+  laptop, a teammate's laptop, and the CI runner — the same role
+  `package-lock.json`/`composer.lock`/a Maven `pom.xml` with pinned
+  versions plays elsewhere. A missing or out-of-date `go.sum` is exactly
+  the kind of thing that causes "works on my machine" bugs.
+- **`gofmt` being non-negotiable (no configuration knobs, unlike
+  Prettier/ESLint/`clang-format`)** is why Go code across unrelated
+  companies and open-source projects all looks the same — nobody argues
+  about brace placement or import ordering in code review, because there's
+  only one canonical formatting and a save-on-format editor setting
+  produces it automatically.
+
 ## Katas
 
 Two tiny "spot and fix it" drills for `gofmt` and `go vet` — see

@@ -269,6 +269,100 @@ in code review.
   makes code harder to test in isolation and, the moment goroutines are
   involved, an unsynchronized global is a data race waiting to happen.
 
+## Real-world use cases
+
+Where these specific mechanics show up once you're past tutorial code:
+
+**Variables & types** — `iota` const blocks model closed sets of states
+that map to a database enum or HTTP status family:
+
+```go
+type OrderStatus int
+
+const (
+    Pending OrderStatus = iota
+    Shipped
+    Delivered
+    Cancelled
+)
+```
+
+**Arrays, slices, maps** — a slice of structs read from a database query
+or a JSON API response is the single most common data shape in a Go
+service; `map[string]int` (or a struct value) is the default choice for
+an in-memory counter/lookup table (word frequency, request counts per
+endpoint, a config keyed by feature name).
+
+**Strings, runes, bytes** — `strings.Builder` is what you reach for while
+generating a CSV export or assembling a SQL query from clauses in a loop,
+anywhere string concatenation would otherwise happen many times in a row.
+
+**Pointers** — a pointer receiver is how a `*sql.DB`-backed repository
+type mutates its internal connection pool state, and passing `*Config` to
+a constructor instead of `Config` is how you let `nil` mean "use
+defaults" for an optional dependency.
+
+**Structs & embedding** — embedding `sync.Mutex` or a base `Model` struct
+(with `ID`, `CreatedAt`, `UpdatedAt` fields) into every database-backed
+type is a common pattern in Go ORMs/ORM-adjacent code:
+
+```go
+type Model struct {
+    ID        int
+    CreatedAt time.Time
+}
+
+type User struct {
+    Model // promotes ID, CreatedAt onto User directly
+    Name  string
+}
+```
+
+**Methods** — a `String() string` method (satisfying `fmt.Stringer`) is
+what makes a custom type print usefully in logs and error messages
+instead of a raw struct dump — worth adding to almost any type with an
+identity (an ID, a status enum).
+
+**Interfaces** — this is the single most-used real-world pattern in the
+whole lesson: define a small interface for whatever your code depends on
+(a `PaymentGateway`, a `Clock`, a `UserStore`), so production code wires
+up the real implementation and tests wire up a fake — no mocking
+framework or dependency-injection container required, unlike Java/C# code
+that typically needs Mockito/Moq for the same job.
+
+**Generics** — a `Repository[T]` type is the classic real use: one
+`Create`/`Get`/`List` implementation shared by every entity type in a
+service instead of hand-writing `UserRepository`, `OrderRepository`,
+`ProductRepository` with identical bodies:
+
+```go
+type Repository[T any] struct {
+    items map[int]T
+}
+
+func (r *Repository[T]) Get(id int) (T, bool) {
+    v, ok := r.items[id]
+    return v, ok
+}
+```
+
+**Errors** — a custom error type carrying structured data (a `ValidationError`
+with a `Field` and `Message`) is how an HTTP handler turns a failure deep
+in a call stack into the right status code and JSON body via `errors.As`,
+without every layer in between needing to know about HTTP at all.
+
+**defer / panic / recover** — `defer conn.Close()`/`defer tx.Rollback()`
+right after opening a database connection or transaction is the standard
+way production Go code guarantees cleanup on every exit path; `recover`
+inside HTTP middleware is how a server turns a panic in one request
+handler into a 500 response instead of crashing the whole process.
+
+**Packages & visibility** — a package's exported types/functions are its
+public API contract; keeping helper types and validation logic
+unexported is how a `payments` package can change its internal
+implementation without breaking every caller, the same discipline Java
+gets from `public`/`package-private` and PHP from `public`/`private`.
+
 ## Exercise
 
 `exercise.go` / `exercise_test.go` has two independent tasks:

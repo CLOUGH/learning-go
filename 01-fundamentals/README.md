@@ -47,6 +47,45 @@ Want the fuller picture of the language instead of the quick tour above —
 generics, embedding, error wrapping, `defer`/`panic`/`recover`, package
 visibility, and more? That's [02-core-fundamentals](../02-core-fundamentals/README.md).
 
+## Real-world use cases
+
+These aren't warm-up syntax — every one of them shows up in ordinary
+production Go within the first few files of most services:
+
+- **Implicit interfaces** are why Go code is easy to test without a
+  mocking framework: a function that takes an interface it needs (say,
+  something with a `Save(User) error` method) can be handed a real
+  database in production and a fake in-memory struct in tests, with zero
+  `implements`/`@Mock` ceremony:
+
+  ```go
+  type UserStore interface {
+      Save(u User) error
+  }
+
+  func Register(store UserStore, u User) error { return store.Save(u) }
+  // production: Register(postgresStore, u)
+  // test:       Register(&fakeStore{}, u)
+  ```
+
+- **`error` as a return value** is the shape of essentially every
+  standard-library and third-party function that can fail — a database
+  query, an HTTP call, a file read. Getting comfortable with `if err !=
+  nil { return err }` here is what makes reading real Go code fluent later.
+- **Closures capturing by reference** are exactly the mechanism behind
+  `http.HandlerFunc` middleware and dependency injection without a
+  framework — a handler "closes over" a logger or a config value from its
+  enclosing scope instead of needing it injected through a container:
+
+  ```go
+  func withLogging(logger *log.Logger, next http.HandlerFunc) http.HandlerFunc {
+      return func(w http.ResponseWriter, r *http.Request) {
+          logger.Println(r.Method, r.URL.Path) // closes over logger
+          next(w, r)
+      }
+  }
+  ```
+
 ## Katas
 
 Two short practice drills — see [katas/README.md](katas/README.md).

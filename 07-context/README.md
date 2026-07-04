@@ -75,6 +75,33 @@ Run it:
 go run ./07-context
 ```
 
+## Real-world use cases
+
+- **Every `net/http` handler already receives one** — `r.Context()` on an
+  incoming request is cancelled automatically the moment the client
+  disconnects or the request times out, so passing that context down into
+  a database query means the query itself gets cancelled instead of
+  running to completion for a client that's no longer listening:
+
+  ```go
+  func handler(w http.ResponseWriter, r *http.Request) {
+      ctx := r.Context()
+      user, err := db.GetUserContext(ctx, userID) // cancelled if the client hangs up
+      ...
+  }
+  ```
+
+- **Bounding an outgoing API call's total time** — wrapping a call to a
+  third-party service in `context.WithTimeout` so a single slow
+  dependency can't make your own service hang indefinitely; this is the
+  standard way Go services enforce their own SLAs on calls they don't
+  control.
+- **Carrying a request ID or trace ID** through `context.WithValue` so
+  every log line and downstream call in a request's lifetime can be
+  correlated back to the same incoming request — the main legitimate use
+  of `WithValue` in most real codebases, alongside auth claims extracted
+  once at the edge.
+
 ## Katas
 
 See [katas/README.md](katas/README.md).

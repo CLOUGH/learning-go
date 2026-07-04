@@ -36,6 +36,15 @@ in sync with whatever lessons actually exist.
   "Run it"), `main.go` (+ numbered demo files for the two multi-file
   lessons), optionally `exercise.go`/`exercise_test.go` (one bigger
   practice problem), and always a `katas/` folder (1-2 smaller drills).
+- **Every lesson's README also has a "Real-world use cases" section**,
+  placed after "Idiomatic usage" where that section exists, otherwise
+  right before "Katas"/"Exercise". It's short prose plus a small
+  illustrative code snippet (not a full runnable demo, no expected-output
+  comment needed) tying the lesson's concept to where it actually shows up
+  in production Go code — an HTTP service, a CLI tool, a job queue, a
+  cache. This is deliberately distinct from "Idiomatic usage": that
+  section is about *how* to use a feature well once you've reached for
+  it; this one is about *where/why* you'd reach for it at all.
 - **Katas and exercises are stubs, not partial implementations.** Every
   unimplemented function body is exactly `panic("TODO: implement X")` —
   never a partial/guessed implementation. This is deliberate: `go test`

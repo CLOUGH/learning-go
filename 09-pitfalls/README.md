@@ -113,6 +113,35 @@ go run ./09-pitfalls
 deadlock crashes the whole program — uncomment `demonstrateDeadlock()` in
 `main.go` and run it on its own to see the crash and stack dump.)
 
+## Real-world use cases
+
+Recognizing these on-call, since that's usually where you actually meet
+them:
+
+- **A goroutine leak shows up as a slow memory/goroutine-count climb** in
+  a service's metrics dashboard over hours or days, not a crash — you'd
+  spot it by graphing `runtime.NumGoroutine()` or pulling a `pprof`
+  goroutine profile from `/debug/pprof/goroutine` on a service that's
+  been running a while and finding thousands of goroutines stuck in the
+  same blocked state.
+- **Loop-variable capture bugs** are the classic reason a batch job that
+  processes a slice of items concurrently ("send N emails," "upload N
+  files") reports the *last* item's data for every item, or crashes on
+  the wrong one — a bug that's invisible in code review unless you know
+  to look for it, which is exactly why it's still a common interview
+  question even post-Go-1.22.
+- **A deadlock in production** presents as a service that stops
+  responding to health checks entirely (not slow — completely stuck) and
+  gets killed and restarted by an orchestrator (Kubernetes liveness
+  probe), which hides the actual bug unless someone catches the
+  `fatal error: all goroutines are asleep` output in the crashed
+  container's logs first.
+- **Forgetting `wg.Done()` on an error path** is a common cause of a
+  request handler hanging forever on `wg.Wait()` for one specific bad
+  input, while every other input works fine — the kind of bug that only
+  reproduces under a specific failure condition, which is why the "defer
+  it immediately" rule matters more than it looks like it should.
+
 ## Katas
 
 Two "don't leak, don't race" drills — see [katas/README.md](katas/README.md).

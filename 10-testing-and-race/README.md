@@ -174,6 +174,24 @@ go test -race ./10-testing-and-race/...
 go test -bench=. ./10-testing-and-race/...
 ```
 
+## Real-world use cases
+
+- **`-race` in CI is the single highest-leverage tool in this lesson** —
+  most real Go projects (the standard library itself included) require
+  it as a merge gate specifically because concurrency bugs are
+  timing-dependent and can pass a normal test run hundreds of times
+  before showing up in production under real load.
+- **`testing/synctest` is what makes testing a retry-with-backoff client
+  or a session-expiry timeout fast and reliable** — without it, teams
+  either shrink real durations for tests (flaky on a loaded CI box) or
+  skip testing the timeout path at all; a fake-clock test runs the exact
+  same logic in milliseconds, deterministically, every time.
+- **Benchmarking with `b.RunParallel`** is how you'd validate a
+  performance fix before shipping it — e.g. proving that switching a
+  hot-path counter from `sync.Mutex` to `atomic.Int64` actually reduced
+  contention, with a number to put in the PR description instead of just
+  asserting it should be faster.
+
 ## Katas
 
 See [katas/README.md](katas/README.md).

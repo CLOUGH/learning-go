@@ -79,6 +79,22 @@ Run it:
 go run ./05-select
 ```
 
+## Real-world use cases
+
+- **Bounding a slow downstream call** — the timeout pattern above is
+  exactly how you'd guard an HTTP client call to a flaky third-party API:
+  race the real response against `time.After` so one slow dependency
+  can't hang your entire request indefinitely.
+- **A single goroutine multiplexing several event sources** — e.g. a
+  connection-handling loop that selects on incoming data, an outgoing
+  write queue, a heartbeat ticker, and a shutdown signal all at once, all
+  in one `for { select { ... } }` loop instead of four separate goroutines
+  each needing their own synchronization.
+- **Non-blocking checks with `default`** — polling "is there work
+  available right now without waiting for it" (e.g. draining whatever's
+  currently in a buffered channel before doing something else), which is
+  the shape health-check and metrics-collection loops often take.
+
 ## Katas
 
 See [katas/README.md](katas/README.md).

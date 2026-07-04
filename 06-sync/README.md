@@ -94,6 +94,37 @@ go run ./06-sync
 go test -race ./06-sync/...
 ```
 
+## Real-world use cases
+
+- **An in-memory cache shared across request-handling goroutines** — a
+  `map[string]Value` guarded by a `sync.RWMutex` is the standard shape
+  for a process-local cache (rate-limit counters, feature-flag values, a
+  session store) that many concurrent HTTP requests read constantly and
+  occasionally write:
+
+  ```go
+  type Cache struct {
+      mu   sync.RWMutex
+      data map[string]string
+  }
+
+  func (c *Cache) Get(key string) (string, bool) {
+      c.mu.RLock()
+      defer c.mu.RUnlock()
+      v, ok := c.data[key]
+      return v, ok
+  }
+  ```
+
+- **Lazy, thread-safe singleton initialization** — `sync.Once` around
+  setting up a database connection pool or parsing a config file exactly
+  once, no matter how many goroutines call the accessor concurrently
+  during startup.
+- **`sync/atomic` counters for metrics** — request counters, in-flight
+  request gauges, and similar high-frequency single-value updates in a
+  server's hot path use `atomic.Int64` instead of a mutex, since the
+  lock's overhead would be measurable at that call frequency.
+
 ## Katas
 
 Two more practice drills beyond the exercise above — see

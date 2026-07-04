@@ -64,6 +64,35 @@ channel you already know instead of adding a dedicated semaphore type.
 go run ./08-patterns/semaphore
 ```
 
+## Real-world use cases
+
+These aren't textbook exercises — they're the load-bearing patterns
+behind tools you've likely already used:
+
+- **Worker pools** cap concurrency in image/video transcoding services,
+  batch email senders, and CI runners — anywhere "process N items" needs
+  to happen without opening N simultaneous database connections or
+  maxing out CPU with unbounded goroutines.
+- **Pipelines** are how command-line tools like `gofmt`/linters and log
+  processors structure "read → parse → transform → write" as concurrent
+  stages instead of one monolithic loop — the same idea as a Unix shell
+  pipeline (`cat file | grep x | sort`), just built from goroutines and
+  channels instead of processes and file descriptors.
+- **Fan-out/fan-in** is the shape behind scatter-gather API aggregation —
+  a "search everything" endpoint that fans a query out to several
+  backend services in parallel and fans the results back into one
+  response, only as slow as the slowest backend instead of the sum of all
+  of them.
+- **Rate limiters** are literally what sits in front of every public API
+  with a "requests per second" quota (Stripe, GitHub, and most SaaS APIs
+  document one) — the client-side version in this lesson is what you'd
+  build to stay under someone else's limit; API gateways build the
+  server-side mirror of the same idea.
+- **Semaphores** show up wherever you need to bound concurrency into an
+  external resource that worker pools would be overkill for — e.g.
+  limiting how many files are open at once, or how many concurrent
+  requests hit a downstream service that only tolerates so much load.
+
 ## Katas
 
 See [katas/README.md](katas/README.md).

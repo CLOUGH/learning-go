@@ -80,6 +80,29 @@ go run ./04-channels
 go test -race ./04-channels/...
 ```
 
+## Real-world use cases
+
+- **A job queue backed by a buffered channel** is the standard way a Go
+  service bounds how much background work it accepts at once — an
+  HTTP handler pushes work onto the channel instead of spawning an
+  unbounded number of goroutines, and a fixed pool of workers (lesson 08)
+  drains it:
+
+  ```go
+  jobs := make(chan Job, 100) // accept up to 100 queued jobs before senders block
+  go handler.Enqueue(jobs)    // producer
+  go worker.Process(jobs)     // consumer
+  ```
+
+- **Graceful shutdown** — closing a `shutdown` channel is how a long-running
+  server tells every background goroutine "stop accepting new work and
+  drain what's in flight," which `for v := range ch` and the comma-ok
+  `v, ok := <-ch` idiom exist specifically to support cleanly.
+- **Streaming results as they arrive** instead of buffering everything in
+  memory first — e.g. a function that processes a large file and sends
+  each parsed record over a channel to a caller that acts on records one
+  at a time, rather than returning a giant `[]Record` slice all at once.
+
 ## Katas
 
 Two more practice drills beyond the exercise above — see
